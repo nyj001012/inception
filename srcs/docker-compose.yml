@@ -1,29 +1,59 @@
 version: '3.8'
 
+networks:
+  inception:
+    name: inception
+
 services:
-  nginx:
-    image: nginx
-    volumes:
-      - ./templates:/etc/nginx/templates
-    ports:
-      - 8080:80
-    environment:
-      - NGINX_HOST=foobar.com
-      - NGINX_PORT=80
-  
   mariadb:
-    image: mariadb
+    env_file:
+      - .env
+    container_name: mariadb
+    build: requirements/mariadb
+    image: mariadb:alpine
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - inception
     restart: always
-    environment:
-      MARIADB_ROOT_PASSWORD: example
 
   wordpress:
-    image: wordpress
+    env_file:
+      - .env
+    container_name: wordpress
+    build: ./requirements/wordpress
+    image: wordpress:alpine
+    depends_on:
+      - mariadb
+    networks:
+      - inception
+    volumes:
+      - wordpress_data:/var/www/html/wordpress
     restart: always
+
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
     ports:
-      - 8000:80
-    environment:
-      WORDPRESS_DB_HOST: mariadb
-      WORDPRESS_DB_USER: exampleuser
-      WORDPRESS_DB_PASSWORD: examplepass
-      WORDPRESS_DB_NAME: exampledb
+      - "443:443"
+    build: ./requirements/nginx
+    networks:
+      - inception
+    env_file:
+      - .env
+    restart: 
+      always
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/yena/data/mysql
+      o: bind
+
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/yena/data/wordpress

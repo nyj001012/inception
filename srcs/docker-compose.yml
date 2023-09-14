@@ -5,6 +5,24 @@ networks:
     name: inception
 
 services:
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    build: ./requirements/nginx
+    volumes:
+      - ./requirements/nginx/conf/:/etc/nginx/http.d/
+      - wordpress_data:/var/www
+    networks:
+      - inception
+    env_file:
+      - .env
+    restart: 
+      always
+  
   mariadb:
     env_file:
       - .env
@@ -15,6 +33,8 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - inception
+    ports:
+      - "3306:3306"
     restart: always
 
   wordpress:
@@ -28,32 +48,18 @@ services:
     networks:
       - inception
     volumes:
-      - wordpress_data:/var/www/html/wordpress
+      - wordpress_data:/var/www/
     restart: always
-
-  nginx:
-    container_name: nginx
-    image: nginx:alpine
-    ports:
-      - "443:443"
-    build: ./requirements/nginx
-    networks:
-      - inception
-    env_file:
-      - .env
-    restart: 
-      always
 
 volumes:
   db_data:
-    driver: local
     driver_opts:
       type: none
-      device: /home/yena/data/mysql
+      device: /home/yena/data/mariadb
       o: bind
 
   wordpress_data:
-    driver: local
     driver_opts:
       type: none
       device: /home/yena/data/wordpress
+      o: bind

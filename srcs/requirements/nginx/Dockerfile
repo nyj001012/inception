@@ -1,18 +1,15 @@
-FROM nginx:1.24.0-alpine
+FROM alpine:3.18.3
 
 RUN apk add nginx && \
-    apk add openssl && \
-    apk add openrc
-
-WORKDIR /
+    apk add openssl
 
 COPY ./tools/script.sh /usr/local/bin/nginx_script.sh
 RUN chmod +x /usr/local/bin/nginx_script.sh
 RUN /usr/local/bin/nginx_script.sh
 
 RUN chmod +rw /etc/nginx/nginx.conf
-COPY ./conf/default.conf /etc/nginx/sites-available/default
+COPY conf/default.conf /etc/nginx/conf.d/nginx.conf
 
-CMD [ "/sbin/init" ]
+CMD [ "nginx", "-g", "daemon off;" ]
 
 EXPOSE 443

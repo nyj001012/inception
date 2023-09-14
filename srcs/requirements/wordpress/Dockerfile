@@ -1,31 +1,30 @@
 FROM alpine:3.18.3
 
-WORKDIR /
+ARG PHP_VERSION=81
 
-RUN apk add wget \
-    php \
-    php-mysqli \
-    php-fpm \
-    php-cgi \
-    php-pdo \
-    php-gd php-cli \
-    php-mbstring
+RUN apk update && apk upgrade && apk add --no-cache \
+    wget \
+    unzip \
+    php${PHP_VERSION} \
+    php${PHP_VERSION}-mysqli \
+    php${PHP_VERSION}-fpm && \
+    sed -i "s|listen = 127.0.0.1:9000|listen = 9000|g" \
+    	/etc/php${PHP_VERSION}/php-fpm.d/www.conf && \
+    sed -i "s|;listen.owner = nobody|listen.owner = nobody|g" \
+    	/etc/php${PHP_VERSION}/php-fpm.d/www.conf && \
+    sed -i "s|;listen.group = nobody|listen.group = nobody|g" \
+	/etc/php${PHP_VERSION}/php-fpm.d/www.conf && \
+    rm -f /var/cache/apk/*
 
-RUN mkdir /var/www/
-RUN mkdir /var/www/html/
+WORKDIR /var/www
 
-COPY ./conf/www.conf /var/www/html/
+RUN wget https://wordpress.org/latest.zip && \
+    unzip latest.zip && \
+    cp -rf wordpress/* . && \
+    rm -rf wordpress latest.zip
 
-RUN mkdir /run/php
+COPY tools/create_config.sh /usr/local/bin/create_config.sh
+RUN sh /usr/local/bin/create_config.sh && rm /usr/local/bin/create_config.sh && \
+    chmod -R 0777 wp-content/
 
-
-COPY ./tools/script.sh /usr/local/bin/wordpress_script.sh
-RUN chmod +x /usr/local/bin/wordpress_script.sh
-
-ENTRYPOINT ["wordpress_script.sh"]
-
-WORKDIR /var/www/html/
-
-EXPOSE 9000
-
-CMD ["/usr/sbin/php-fpm7.3", "-F"]
+CMD ["/usr/sbin/php-fpm81", "-F"]

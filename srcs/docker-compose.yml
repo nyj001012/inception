@@ -5,62 +5,60 @@ networks:
     name: inception
 
 services:
-  mariadb:
-    env_file:
-      - .env
-    container_name: mariadb
-    build: requirements/mariadb
-    image: mariadb:alpine
-    volumes:
-      - db_data:/var/lib/mysql
-    networks:
-      - inception
-    restart: always
-
-  wordpress:
-    env_file:
-      - .env
-    container_name: wordpress
-    build: ./requirements/wordpress
-    image: wordpress:alpine
-    depends_on:
-      - mariadb
-    networks:
-      - inception
-    volumes:
-      - wordpress_data:/var/www/html/wordpress
-    restart: always
-
   nginx:
+    networks:
+      - inception
     container_name: nginx
+    build: ./requirements/nginx
     image: nginx:alpine
     depends_on:
       - wordpress
     ports:
       - "443:443"
-    build: ./requirements/nginx
-    networks:
-      - inception
+    volumes:
+      - wordpress_data:/var/www/html/wordpress
     env_file:
       - .env
     restart: 
       always
+
+  mariadb:
+    networks:
+      - inception
+    container_name: mariadb
+    build: requirements/mariadb
+    image: mariadb:alpine
+    ports:
+      - "3306:3306"
     volumes:
-      - ./requirements/nginx/conf/:/etc/nginx/conf.d/
-      - /etc/ssl/private/nginx.key:/etc/ssl/private/nginx.key
-      - /etc/ssl/certs/nginx.crt:/etc/ssl/certs/nginx.crt
-      - wordpress_data:/var/www/
+      - db_data:/var/lib/mysql
+    env_file:
+      - .env
+    restart: always
+
+  wordpress:
+    networks:
+      - inception
+    container_name: wordpress
+    build: ./requirements/wordpress
+    image: wordpress:alpine
+    depends_on:
+      - mariadb
+    volumes:
+      - wordpress_data:/var/www/html/wordpress
+    env_file:
+      - .env
+    restart: always
 
 volumes:
   db_data:
-    driver: local
     driver_opts:
       type: none
       device: /home/yena/data/mysql
       o: bind
 
   wordpress_data:
-    driver: local
     driver_opts:
       type: none
       device: /home/yena/data/wordpress
+      o: bind

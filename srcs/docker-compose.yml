@@ -9,8 +9,7 @@ services:
     networks:
       - inception
     container_name: nginx
-    build: ./requirements/nginx
-    image: nginx:alpine
+    build: requirements/nginx
     depends_on:
       - wordpress
     ports:
@@ -27,7 +26,6 @@ services:
       - inception
     container_name: mariadb
     build: requirements/mariadb
-    image: mariadb:alpine
     ports:
       - "3306:3306"
     volumes:
@@ -41,7 +39,6 @@ services:
       - inception
     container_name: wordpress
     build: ./requirements/wordpress
-    image: wordpress:alpine
     depends_on:
       - mariadb
     volumes:

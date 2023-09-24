@@ -11,8 +11,8 @@ RUN apt update && apt install -y \
 
 EXPOSE 9000
 
-COPY ./tools/script.sh /
+COPY ./tools/script.sh .
 
 ENTRYPOINT ["sh", "script.sh"]
 
-CMD ["php-fpm8.2", "-F"]
+CMD ["php-fpm8.2", "-F", "-R"]

@@ -12,7 +12,6 @@ RUN apt update && apt install -y \
 EXPOSE 9000
 
 COPY ./tools/script.sh .
-COPY ./conf/index.php .
 
 ENTRYPOINT ["sh", "script.sh"]
 

@@ -35,8 +35,4 @@ wp core install --allow-root --url=${WP_URL} --title=${WP_TITLE} --admin_user=${
 wp user create ${WP_ADMIN} ${WP_ADMIN_EMAIL} --role=administrator --user_pass=${WP_ADMIN_PASSWORD} --path=/var/www/html/wordpress --allow-root
 wp user create ${WP_USER} ${WP_USER_EMAIL} --role=editor --user_pass=${WP_USER_PASSWORD} --path=/var/www/html/wordpress --allow-root
 
-# move index.php into /var/www/html/wordpress/
-cd /
-mv index.php /var/www/html/wordpress
-
 exec "$@"

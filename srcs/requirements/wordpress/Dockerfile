@@ -13,6 +13,8 @@ EXPOSE 9000
 
 COPY ./tools/script.sh .
 
+RUN chmod +x script.sh
+
 ENTRYPOINT ["sh", "script.sh"]
 
 CMD ["php-fpm8.2", "-F", "-R"]

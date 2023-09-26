@@ -26,12 +26,15 @@ rm -rf /var/www/html/wordpress/*
 wp core download --allow-root
 
 # wp-config.php
+echo '* creating wp-config.php'
 wp config create --allow-root --dbname=${MYSQL_DATABASE} --dbuser=${MYSQL_USER} --dbpass=${MYSQL_PASSWORD} --dbhost=${MYSQL_HOSTNAME}
 
 # wordpress dependencies
+echo '* setting site and admin'
 wp core install --allow-root --url=${WP_URL} --title=${WP_TITLE} --admin_user=${WP_ADMIN} --admin_password=${WP_ADMIN_PASSWORD} --admin_email=${WP_ADMIN_EMAIL} --allow-root
 
 # user
+echo '* setting user'
 wp user create ${WP_USER} ${WP_USER_EMAIL} --role=editor --user_pass=${WP_USER_PASSWORD} --path=/var/www/html/wordpress --allow-root
 
 exec "$@"

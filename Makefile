@@ -16,6 +16,7 @@ clean:
 
 
 fclean: clean
+	sudo rm -rf /home/yena/data
 	@docker rm -f $(docker ps -aq) 2> /dev/null; \
 	@docker rmi $(docker images -q) 2> /dev/null; \
 	docker system prune -a -f; \

@@ -22,6 +22,9 @@ fclean: clean
 	docker system prune -a -f; \
 	echo -e "* all files has \033[0;31mDELETED\033[0m."
 
+status:
+	@docker compose -p $(NAME) ps
+
 re: fclean all
 
 .PHONY: all clean fclean re
